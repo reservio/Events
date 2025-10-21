@@ -40,7 +40,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function dispatchEvent($eventName, DoctrineEventArgs $eventArgs = NULL)
+    public function dispatchEvent(string $eventName, ?DoctrineEventArgs $eventArgs = NULL): void
 	{
 		[$ns, $event] = Event::parseName($eventName);
 
@@ -54,7 +54,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getListeners($eventName = NULL)
+	public function getListeners(string $eventName = null): array
 	{
 		if ($eventName === NULL) {
 			$listeners = [];
@@ -83,7 +83,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function hasListeners($eventName)
+	public function hasListeners(string $eventName): bool
 	{
 		[$ns, $event] = Event::parseName($eventName);
 
@@ -97,7 +97,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addEventListener($events, $subscriber, $priority = 0)
+	public function addEventListener(string|array $events, object $subscriber, $priority = 0): void
 	{
 		foreach ((array) $events as $eventName) {
 			[$ns, $event] = Event::parseName($eventName);
@@ -108,30 +108,14 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function removeEventListener($unsubscribe, $subscriber = NULL)
+	public function removeEventListener(string|array $unsubscribe, object $subscriber = NULL): void
 	{
-		if ($unsubscribe instanceof EventSubscriber) {
-			$subscriber = $unsubscribe;
-			$unsubscribe = [];
-
-			foreach ($subscriber->getSubscribedEvents() as $eventName => $params) {
-				if ((is_array($params) && is_array($params[0])) || !is_numeric($eventName)) {
-					// [EventName => [[method, priority], ...], ...]
-					// [EventName => [method, priority], ...] && [EventName => method, .
-					$unsubscribe[] = $eventName;
-
-				} else { // [EventName, ...]
-					$unsubscribe[] = $params;
-				}
-			}
-		}
-
 		$unsubscribe = array_map(function ($eventName) {
 			[$ns, $event] = Event::parseName($eventName);
 			return $ns === NULL ? $this->namespace . $event : $eventName;
 		}, (array) $unsubscribe);
 
-		$this->evm->removeEventListener($unsubscribe, $subscriber);
+        $this->evm->removeEventListener($unsubscribe, $subscriber);
 	}
 
 	/**

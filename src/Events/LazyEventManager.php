@@ -50,7 +50,7 @@ class LazyEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getListeners($eventName = NULL)
+    public function getListeners(string $eventName = NULL): array
 	{
 		if ($eventName === NULL) {
 			while (($type = key($this->listenerIds)) !== NULL) {
@@ -67,14 +67,8 @@ class LazyEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritdoc}
 	 */
-	public function removeEventListener($unsubscribe, $subscriber = NULL)
+    public function removeEventListener(string|array $unsubscribe, object $subscriber = NULL): void
 	{
-		if ($unsubscribe instanceof EventSubscriber) {
-			[$unsubscribe, $subscriber] = $this->extractSubscriber($unsubscribe);
-		} elseif ($unsubscribe instanceof Closure) {
-			[$unsubscribe, $subscriber] = $this->extractCallable($unsubscribe);
-		}
-
 		foreach ((array) $unsubscribe as $eventName) {
 			if (array_key_exists($eventName, $this->listenerIds)) {
 				$this->initializeListener($eventName);
